@@ -7,9 +7,9 @@
         "request": "launch",
         "program": "${workspaceFolder}/clustering_goterms_3.py",
         "console": "integratedTerminal",
-        "cwd": "/home/rita/Documents/scripts",
+        "cwd": "${workspaceFolder}",
         "args": [
-          "--input-file", "/home/rita/mount/pharmad/home/storage2/projects/omics/mirt_ortho/data/results/ortholog/20250720_1_GO_enrichment/mirt_ortho__conserved_mirnas_hsa_goenrich_alltrue_20250720_1nr.tsv",
+          "--input-file", "${workspaceFolder}/${input.tsv}",
           "--obo", "go-basic.obo",
           "--gaf", "goa_human.gaf.gz",
           "--taxon", "9606",
