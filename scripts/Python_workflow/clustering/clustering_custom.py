@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 """
+NEEDS REVISION! 2025.11.17
+
 Custom GO Term Clustering using GOATOOLS
 
 This module provides custom hierarchical clustering with semantic similarity
@@ -284,7 +286,7 @@ def main():
     )
     
     # Save results
-    output_file = f"{args.out_prefix}_custom_clusters.tsv"
+    output_file = f"{args.out_prefix}_custom_clustered.tsv"
     clusters_df.to_csv(output_file, sep="\t", index=False)
     print(f"Clusters saved to {output_file}")
     
