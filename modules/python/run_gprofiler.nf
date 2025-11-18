@@ -4,13 +4,13 @@ process run_gprofiler {
     tag "Python_gprofiler"
     label "python"
 
-    publishDir "${projectDir}/results/Python_based", mode: 'copy'
+    publishDir "output_dir_py", mode: 'copy'
 
     input:
         path input_tsv
 
     output:
-        path("output/*.tsv"), emit: enriched
+        path("output/*.tsv"), emit: enrichedPython
 
     script:
     """

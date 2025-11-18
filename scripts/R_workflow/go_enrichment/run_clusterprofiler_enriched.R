@@ -5,12 +5,19 @@ library(clusterProfiler)
 library(org.Hs.eg.db)
 library(GOSemSim)
 library(dplyr)
-library(dotenv)
 
-# Load environment variables from paths.env
-load_dot_env(file = "paths.env")
-output_dir <- Sys.getenv("R_RESULT")
-input_file <- Sys.getenv("DATA_RAW")
+
+# Get Arguments
+
+args <- commandArgs(trailingOnly = TRUE)
+
+input_file <- args[1]
+
+out_GO <- args[2]        # e.g., "GO_result.tsv"
+out_GO_lin <- args[3]    # e.g., "GO_result_simplified_Lin.tsv"
+out_GO_wang <- args[4]   # e.g., "GO_result_simplified_Wang.tsv"
+out_KEGG <- args[5]      # e.g., "Kegg_result.tsv"
+
 semData <- godata('org.Hs.eg.db', ont="BP")
 
 analyse_miRNA_targets <- function(input_file) {
@@ -58,9 +65,11 @@ analyse_miRNA_targets <- function(input_file) {
                 Kegg_result = Kegg_result))
 }
 
-# Save the files to results
+# Run the analysis
 enrich_files <- analyse_miRNA_targets(input_file)
-for (name in names(enrich_files)) {
-    output_path <- file.path(output_dir, paste0(name, "_enrichment_results.tsv"))
-    write.table(as.data.frame(enrich_files[[name]]), file = output_path, sep = "\t", row.names = FALSE, quote = FALSE)
-}
+
+# Save the files to results
+write.table(as.data.frame(enrich_files$GO_result), file = out_GO, sep = "\t", row.names=FALSE, quote=FALSE)
+write.table(as.data.frame(enrich_files$GO_result_simplyfied_Lin), file = out_GO_lin, sep = "\t", row.names=FALSE, quote=FALSE)
+write.table(as.data.frame(enrich_files$GO_result_simplyfied_Wang), file = out_GO_wang, sep = "\t", row.names=FALSE, quote=FALSE)
+write.table(as.data.frame(enrich_files$Kegg_result), file = out_KEGG, sep = "\t", row.names=FALSE, quote=FALSE)

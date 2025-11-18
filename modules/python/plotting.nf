@@ -3,7 +3,7 @@
 process plot_clusters {
     tag "Python_Plotting"
     label "python"
-    publishDir "${projectDir}/results/Python_based/plots/${input_name}", mode: 'copy'
+    publishDir "output_dir_py/plots/${input_name}", mode: 'copy'
     
     input:
         tuple path(_lin_clusters), path(_lin_plot_json), val(input_name) from clustered

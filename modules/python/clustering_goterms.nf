@@ -3,7 +3,7 @@
 process cluster_python_lin {
     tag "Python_Lin_Clustering"
     label "python"
-    publishDir "${projectDir}/results/Python_based", mode: 'copy'
+    publishDir "output_dir_py", mode: 'copy'
     
     input:
         path(enrichment_results)
