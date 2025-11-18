@@ -1,38 +1,57 @@
-# Comparison of GO Term Clustering Approaches for miRNA Target Functional Analysis
+# GO Enrichment Analysis: Clustering Method Comparison
+
+[![GitHub](https://img.shields.io/badge/GitHub-Nerita21/GO_enrichment_analysis-blue?logo=github)](https://github.com/Nerita21/GO_enrichment_analysis)
+![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)
+![Version: 2.0.0](https://img.shields.io/badge/Version-2.0.0-blue.svg)
+![Status: Active Development](https://img.shields.io/badge/Status-Active-brightgreen.svg)
 
 ## Overview
-This project compares two complementary approaches for summarizing Gene Ontology (GO) enrichment results derived from predicted or validated miRNA target genes.
-The goal is to reduce redundancy among enriched GO terms and to highlight biologically meaningful clusters that describe the main biological processes, molecular functions, and cellular components regulated by the studied miRNA (e.g. hsa-miR-107).
 
-### Two analytical frameworks are compared:
-- An R-based approach using the clusterProfiler ecosystem.
-- A Python-based approach built upon GOATOOLS and custom information content (IC)–based clustering.
+This project provides a **comprehensive framework for comparing different approaches to Gene Ontology (GO) term clustering** from enrichment analysis results. The pipeline evaluates multiple semantic similarity methods and clustering strategies across Python and R implementations.
 
-## Aim
-To systematically evaluate and compare semantic clustering strategies for interpreting GO enrichment results from miRNA target genes, focusing on:
-- How redundant GO terms can be grouped into functional clusters.
-- How different methods (R vs Python) prioritize and label key biological processes.
-- Which clustering representation best supports biological interpretation of miRNA regulatory roles.
+### Key Features
 
-## Methods Summary
-| Step                         | R (clusterProfiler)                                                        | Python (GOATOOLS + custom clustering)                               |
-| ---------------------------- | -------------------------------------------------------------------------- | ------------------------------------------------------------------- |
-| **Input**                    | Enrichment results from `enrichGO()` or `gseGO()` using miRNA target genes | GO term list + ontology DAG (`obodag`) + p-values                   |
-| **Semantic Similarity**      | `pairwise_termsim()` (Wang or Lin)                                         | Lin similarity via MICA (most informative common ancestor)          |
-| **Clustering**               | Hierarchical clustering (`hclust`, average linkage)                        | Hierarchical clustering per namespace (`linkage`, `fcluster`)       |
-| **Cluster Labeling**         | Ancestor GO term (via `simplify()` or common node)                         | MICA term with lowest p-value                                       |
-| **Representative Selection** | Based on p.adjust or common ancestor                                       | Based on IC and lowest p-value                                      |
-| **Cluster Prioritization**   | By significance (`p.adjust`)                                               | By cluster size (>5 terms) or significance                          |
-| **Visualization**            | Barplot, dotplot, or `emapplot`                                            | Heatmap and dendrogram                                              |
-| **Output**                   | Simplified enrichResult table                                              | Clustered DataFrame with namespace, size, representative GO ID/name |
+- 🔄 **Parallel execution** of multiple clustering methods
+- 📊 **Systematic comparison** with efficiency metrics
+- 🐍 **Python pathway:** g:Profiler → GOATOOLS (Lin similarity)
+- 📚 **R pathway:** clusterProfiler → GOSemSim (Wang & Lin similarity)
+- ⚙️ **Custom clustering** alternatives to built-in methods
+- 🐳 **Docker support** for reproducible environments
+- 📈 **Professional reporting** with HTML/JSON outputs
+- 📋 **Nextflow orchestration** for scalable execution
 
 ## Biological Context
-miRNAs play a key role in post-transcriptional regulation of gene expression.
-Identifying functional clusters among enriched GO terms helps summarize major biological themes affected by miRNA targets.
 
-## Comparison Focus
-- Which approach yields clearer, more interpretable clusters?
-- Are biologically similar terms grouped consistently between R and Python?
-- Do clusters correspond to known biological functions of the studied miRNA?
-- How does significance (p.adjust) relate to cluster size and semantic cohesion?
+miRNAs are critical post-transcriptional regulators of gene expression. When analyzing predicted or validated miRNA target genes, performing GO enrichment analysis reveals the biological processes, molecular functions, and cellular components they regulate.
+
+However, GO enrichment results often contain many redundant terms describing highly related concepts. This project systematically compares methods that address this redundancy through semantic clustering, helping researchers identify the **major functional themes** regulated by their miRNA of interest.
+
+## Workflows Compared
+
+### R-based Approaches (clusterProfiler + GOSemSim)
+
+| Method | Similarity | Approach | Use Case |
+|--------|-----------|----------|----------|
+| **Wang** | Graph-based topology | Hierarchical clustering + simplify() | Emphasizes structural relationships in GO DAG |
+| **Lin** | Information Content | Hierarchical clustering + simplify() | Emphasizes term specificity and informativeness |
+| **Custom** | Hybrid (Rel) + p-value | Custom hierarchical + representative selection | Transparent alternative to simplify() |
+
+### Python-based Approaches (GOATOOLS)
+
+| Method | Similarity | Approach | Use Case |
+|--------|-----------|----------|----------|
+| **Lin** | Information Content | Hierarchical clustering with IC threshold | MICA-based specificity ranking |
+| **Custom** | Lin + p-value weight | Custom hierarchical with p-value weighting | Balances similarity and statistical significance |
+
+### Key Differences Summary
+
+| Aspect | R (clusterProfiler) | Python (GOATOOLS) |
+|--------|-------------------|-------------------|
+| **Enrichment Tool** | clusterProfiler | g:Profiler |
+| **Similarity Methods** | Wang, Lin, Rel (Hybrid) | Lin (MICA-based) |
+| **Clustering Algorithm** | Hierarchical + simplify() | Hierarchical + custom selection |
+| **Labeling Strategy** | Common ancestor or top term | MICA-based representative |
+| **Strength** | Built-in, well-tested | Fine-grained control, transparent |
+| **Computational Speed** | Fast (pre-computed) | Moderate (IC-based calculation) |
+| **Customization** | Limited without code changes | Highly flexible |
 
