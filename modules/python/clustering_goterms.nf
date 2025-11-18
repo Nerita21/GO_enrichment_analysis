@@ -9,7 +9,7 @@ process cluster_python_lin {
         path(enrichment_results)
     
     output:
-        tuple path("*_lin_clusters.tsv"), path("*_lin_plot_data.json"), val(input_tsv.baseName), emit: clustered
+        tuple path("*_lin_clusters.tsv"), path("*_lin_plot_data.json"), val(enrichment_results.baseName), emit: clustered
     
     script:
     """
