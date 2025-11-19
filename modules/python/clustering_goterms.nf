@@ -7,9 +7,11 @@ process cluster_python_lin {
     
     input:
         path(enrichment_results)
+        path(go_obo) optional true
+        path(gaf_file) optional true
     
     output:
-        tuple path("*_lin_clusters.tsv"), path("*_lin_plot_data.json"), val(enrichment_results.baseName), emit: clustered
+        tuple path("*_lin_clusters.tsv"), path("*_lin_plot_data.json"), val(enrichment_results.baseName), emit: lin_clustered
     
     script:
     """
@@ -26,9 +28,11 @@ process cluster_python_wang {
     
     input:
         path(enrichment_results)
+        path(go_obo) optional true
+        path(gaf_file) optional true
     
     output:
-        tuple path("*_wang_clusters.tsv"), path("*_wang_plot_data.json"), val(enrichment_results.baseName), emit: clustered
+        tuple path("*_wang_clusters.tsv"), path("*_wang_plot_data.json"), val(enrichment_results.baseName), emit: wang_clustered
     
     script:
     """

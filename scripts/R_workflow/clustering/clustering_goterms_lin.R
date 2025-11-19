@@ -17,7 +17,8 @@ suppressMessages({
 # --- get arguments ---
 args <- commandArgs(trailingOnly=TRUE)
 GO_result <- args[1]  # This should be an object of class enrichResult from clusterProfiler
-output_file <- args[2]  # e.g., "GO_lin_clustering.tsv"
+
+output_file <- args[3]  # e.g., "GO_lin_clustering.tsv"
 
 # --- 1. Calculate semantic similarity and clustering ---
 calculate_sim_clustering <- function(GO_result) {

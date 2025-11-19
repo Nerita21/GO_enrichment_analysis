@@ -7,6 +7,8 @@ process cluster_r_lin {
 
     input:
         tuple val(baseName), path("GO_result.tsv"), path("GO_result_simplified_Lin.tsv"), path("GO_result_simplified_Wang.tsv"), path("Kegg_result.tsv") from enrichedR
+        path(go_obo) optional true
+        path(gaf_file) optional true
 
     output:
         path("${baseName}_lin_clusters.tsv"), emit: clusters
