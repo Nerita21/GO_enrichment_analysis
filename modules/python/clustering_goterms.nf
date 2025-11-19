@@ -13,7 +13,26 @@ process cluster_python_lin {
     
     script:
     """
-    python ${projectDir}/scripts/Python_workflow/clustering/clustering_goterms.py \
+    python ${projectDir}/scripts/Python_workflow/clustering/clustering_goterms_lin.py \
+        --input-file ${enrichment_results} \
+        --out-prefix lin 
+    """
+}
+
+process cluster_python_wang {
+    tag "Python_Lin_Clustering"
+    label "python"
+    publishDir "output_dir_py", mode: 'copy'
+    
+    input:
+        path(enrichment_results)
+    
+    output:
+        tuple path("*_wang_clusters.tsv"), path("*_wang_plot_data.json"), val(enrichment_results.baseName), emit: clustered
+    
+    script:
+    """
+    python ${projectDir}/scripts/Python_workflow/clustering/clustering_goterms_wang.py \
         --input-file ${enrichment_results} \
         --out-prefix lin 
     """
