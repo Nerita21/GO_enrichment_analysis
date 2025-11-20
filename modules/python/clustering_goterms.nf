@@ -11,7 +11,7 @@ process cluster_python_lin {
         path(gaf_file) optional true
     
     output:
-        tuple path("*_lin_clusters.tsv"), path("*_lin_plot_data.json"), val(enrichment_results.baseName), emit: lin_clustered
+        tuple path("*_lin_clusters.tsv"), path("*_lin_plot_data.json"), path("*_py_lin_metadata.json"), val(enrichment_results.baseName), emit: lin_clustered
     
     script:
     """
@@ -32,13 +32,14 @@ process cluster_python_wang {
         path(gaf_file) optional true
     
     output:
-        tuple path("*_wang_clusters.tsv"), path("*_wang_plot_data.json"), val(enrichment_results.baseName), emit: wang_clustered
+        tuple path("*_wang_clusters.tsv"), path("*_wang_plot_data.json"), path("*_py_wang_metadata.json") val(enrichment_results.baseName), emit: wang_clustered
     
     script:
     """
     python ${projectDir}/scripts/Python_workflow/clustering/clustering_goterms_wang.py \
         --input-file ${enrichment_results} \
-        --out-prefix lin 
+        --out-prefix wang \
+        --sim-method wang  
     """
 }
 

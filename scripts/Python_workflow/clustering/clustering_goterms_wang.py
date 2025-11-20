@@ -2,6 +2,10 @@
 import argparse
 import gzip
 import json
+import datetime
+import socket
+import subprocess
+import pathlib as Path
 import os
 from collections import defaultdict
 import matplotlib.pyplot as plt
@@ -58,7 +62,7 @@ def get_args():
                    help="Similarity method to use: 'lin' (IC-based) or 'wang' (graph-based). Default: lin")
     p.add_argument("--species", default="human", help="Species for default GAF mapping (human|mouse).")
     p.add_argument("--out-prefix", default="goterm", help="Optional prefix for output filenames.")
-    p.add_argument("--no-show", action="store_true", help="Do not call plt.show(); only save figures to disk")
+    p.add_argument("--obo", default="go-basic.obo", help="Path to GO OBO file (default: go-basic.obo)")
     return p.parse_args()
 
 # -----------------------
@@ -399,6 +403,113 @@ def cluster_terms_by_namespace(
     print("Clusters processed for all namespaces.")
     return df_clusters, df_all_clusters, plot_data
 
+# -----------------------
+# METADATA
+# -----------------------
+
+def generate_metadata(
+    method_id: str,
+    language: str,
+    tool: str,
+    clustering_method: str,
+    representative_selection: str,
+    enrichment_file: str,
+    clusters_tsv: str,
+    plot_files: list,
+    p_cutoff: float,
+    similarity_threshold: float,
+    params: dict,
+    clusters_df,
+    stats_dict: dict
+):
+    """
+    Create a manifest.json file describing the clustering run.
+    
+    Args:
+        method_id: unique identifier (e.g., 'py_lin', 'r_wang')
+        language: 'Python' or 'R'
+        tool: tool name (e.g., 'GOATOOLS', 'clusterProfiler')
+        clustering_method: description of method (e.g., 'Lin IC-based similarity')
+        representative_selection: how representatives are chosen
+        enrichment_file: path to input enrichment TSV
+        clusters_tsv: path to output clusters.tsv
+        plot_files: list of paths to generated plots
+        p_cutoff: p-value threshold used
+        similarity_threshold: similarity threshold for clustering
+        params: dict of all parameters used
+        clusters_df: pandas DataFrame of clusters (to compute statistics)
+        stats_dict: optional dict of pre-computed statistics
+    
+    Returns:
+        dict ready for JSON serialization
+    """
+    
+    # Compute cluster statistics
+    num_clusters = clusters_df['cluster_id'].nunique()
+    cluster_sizes = clusters_df.groupby('cluster_id').size().tolist()
+    num_genes = clusters_df['gene_count'].sum()
+    num_terms = len(clusters_df)
+    median_pvalue = clusters_df['pvalue'].median()
+    median_fold_enrichment = clusters_df.get('fold_enrichment', pd.Series([1])).median()
+    
+    # Get Python/package versions
+    import sys
+    py_version = f"{sys.version_info.major}.{sys.version_info.minor}.{sys.version_info.micro}"
+    
+    try:
+        import goatools
+        goatools_version = goatools.__version__
+    except:
+        goatools_version = "unknown"
+    
+    manifest = {
+        "method_id": method_id,
+        "language": language,
+        "tool": tool,
+        "clustering_method": clustering_method,
+        "representative_selection": representative_selection,
+        
+        "inputs": {
+            "enrichment_file": str(enrichment_file),
+            "go_obo_file": str(params.get('go_obo', 'unknown')),
+            "gaf_file": str(params.get('gaf_file')) if params.get('gaf_file') else None
+        },
+        
+        "outputs": {
+            "clusters_tsv": str(clusters_tsv),
+            "manifest_json": str(Path(clusters_tsv).parent / f"{method_id}_manifest.json"),
+            "plots": [str(p) for p in plot_files]
+        },
+        
+        "parameters": {
+            "p_cutoff": p_cutoff,
+            "min_genes_per_term": params.get('min_genes_per_term', 1),
+            "similarity_threshold": similarity_threshold
+        },
+        
+        "execution": {
+            "software_versions": {
+                "python_version": py_version,
+                "goatools_version": goatools_version,
+                "pandas": "1.5.0",  # or query actual version
+            },
+            "runtime_seconds": stats_dict.get('runtime_seconds', 0),
+            "timestamp": datetime.datetime.utcnow().isoformat() + "Z",
+            "hostname": socket.gethostname()
+        },
+        
+        "statistics": {
+            "num_clusters": int(num_clusters),
+            "cluster_sizes": sorted(cluster_sizes, reverse=True),
+            "num_genes": int(num_genes),
+            "num_terms_before_filtering": int(stats_dict.get('num_terms_before', num_terms)),
+            "num_terms_after_filtering": int(num_terms),
+            "median_pvalue": float(median_pvalue),
+            "median_fold_enrichment": float(median_fold_enrichment)
+        }
+    }
+    
+    return manifest
 
 # -----------------------
 # MAIN
@@ -459,6 +570,36 @@ def main():
     out_tsv = f"{args.out_prefix}_clustered.tsv"
     df_clusters.to_csv(out_tsv, sep="\t", index=False)
     print(f"Clusters written: {out_tsv}")
+
+    # Save metadata
+    metadata = generate_metadata(
+        method_id="py_wang" if args.sim_method == "wang" else "py_lin",
+        language="Python",
+        tool="GOATOOLS",
+        clustering_method= "Wang graph-based similarity" if args.sim_method == "wang" else "Lin IC-based similarity",
+        representative_selection="Medoid term by distance",
+        enrichment_file=args.input_file,
+        clusters_tsv=out_tsv,
+        plot_files=[],
+        p_cutoff=args.pvalue,
+        similarity_threshold=args.sim_threshold,
+        params={
+            "go_obo": args.obo,
+            "gaf_file": args.gaf,
+            "min_genes_per_term": args.min_intersection
+        },
+        clusters_df=df_clusters,
+        stats_dict={
+            "num_terms_before": len(df),
+            "num_terms_after": len(df_filt),
+            "runtime_seconds": 0  # Placeholder; could measure actual runtime
+        }
+    )
+    if args.output_metadata:
+        out_manifest = f"{args.out_prefix}_py_wang_metadata.json"
+        with open(out_manifest, "w") as f:
+            json.dump(metadata, f, indent=2)
+        print(f"Metadata manifest written: {out_manifest}")
 
     # Save plot data to JSON
     out_json = f"{args.out_prefix}_clustering_plot_data.json"
