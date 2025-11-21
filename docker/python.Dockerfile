@@ -1,5 +1,5 @@
-# Python-only image for GO enrichment pipeline
-FROM python:3.11-slim
+# Python-only image for GO enrichment pipeline (changed to bullseye for stability)
+FROM python:3.11-slim-bullseye
 
 WORKDIR /app
 
