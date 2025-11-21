@@ -26,4 +26,5 @@ WORKDIR /app
 ENV PYTHONUNBUFFERED=1
 ENV PATH="/app/scripts:${PATH}"
 
-ENTRYPOINT ["/bin/bash"]
+ENTRYPOINT ["/bin/bash", "-c"]
+

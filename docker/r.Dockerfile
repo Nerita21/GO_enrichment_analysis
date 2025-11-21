@@ -24,4 +24,4 @@ WORKDIR /app
 
 ENV R_LIBS_USER=/usr/local/lib/R/site-library
 
-ENTRYPOINT ["/bin/bash"]
+ENTRYPOINT ["/bin/bash", "-c"]
