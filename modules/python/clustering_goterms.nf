@@ -3,6 +3,7 @@
 process cluster_python_lin {
     tag "Python_Lin_Clustering"
     label "python"
+    container 'go-enrichment-python:latest'
     publishDir "output_dir_py", mode: 'copy'
     
     input:

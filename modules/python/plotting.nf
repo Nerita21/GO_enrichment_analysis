@@ -3,6 +3,7 @@
 process python_plot_cluster_lin {
     tag "Python_Plotting"
     label "python"
+    container 'go-enrichment-python:latest'
     publishDir "output_dir_py/plots/${input_name}", mode: 'copy'
     
     input:

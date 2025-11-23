@@ -1,8 +1,11 @@
+#!/usr/bin/env nextflow
+
 // Python workflow step 1
 // Nextflow process to run g:Profiler enrichment analysis 
 process run_gprofiler {
     tag "Python_gprofiler"
     label "python"
+    container 'go-enrichment-python:latest'
 
     publishDir "output_dir_py", mode: 'copy'
 
@@ -10,13 +13,13 @@ process run_gprofiler {
         path input_tsv
 
     output:
-        path("output/*.tsv"), emit: enrichedPython
+        path("*_gprofiler_enriched.tsv"), emit: enrichedPython
 
     script:
     """
-    mkdir -p output
-    python ${projectDir}/scripts/Python_workflow/go_enrichment/run_gprofiler_enriched.py \
-        ${input_tsv} output
+    python3 ${launchDir}/scripts/Python_workflow/go_enrichment/run_gprofiler_enriched.py \
+        ${input_tsv} \
+         ${input_tsv.baseName}_gprofiler_enriched.tsv
     """
 }
 
