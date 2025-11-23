@@ -11,23 +11,24 @@ from pathlib import Path
 
 def main():
     if len(sys.argv) < 3:
-        print("Usage: python run_gprofiler_enriched.py <input_file> <output_dir> [organism]")
+        print("Usage: python run_gprofiler_enriched.py <input_file> <output_file> [organism]")
         sys.exit(1)
 
     input_file = Path(sys.argv[1])
-    output_dir = Path(sys.argv[2])
+    output_file = Path(sys.argv[2])
     organism = sys.argv[3] if len(sys.argv) > 3 else "hsapiens"
 
-    output_dir.mkdir(parents=True, exist_ok=True)
-
-    output_file = output_dir / f"{input_file.stem}_gprofiler_enriched.tsv"
+    output_file.parent.mkdir(parents=True, exist_ok=True)
 
     gene_column = "GeneSymbol"
-    mirna_column = "miRNA"
+    # mirna_column = "miRNA"
 
     # Load input data
     df = pd.read_csv(input_file, sep="\t")
-    if gene_column not in df.columns or mirna_column not in df.columns:
+    gene_map = df[gene_column].dropna()
+    gene_list = gene_map.str.strip().unique().tolist()
+
+    """ if gene_column not in df.columns or mirna_column not in df.columns:
         raise ValueError(f"Input file must contain columns '{gene_column}' and '{mirna_column}'.")
 
     gene_mirna_map = df[[gene_column, mirna_column]].dropna()
@@ -35,7 +36,7 @@ def main():
 
     print("gene_mirna_map preview:")
     print(gene_mirna_map.head(10))
-
+ """
     # Run g:Profiler
     gp = GProfiler(return_dataframe=True, )
     results = gp.profile(
@@ -47,13 +48,19 @@ def main():
 
     if results.empty:
         print("No enrichment results found.")
-        sys.exit(0)
+        # Write an empty results file with headers so the pipeline can proceed
+        empty_cols = [
+            "GO_term", "Genes", 
+            "native", "description", "p_value", "term_size", "intersection_size"
+        ]
+        pd.DataFrame(columns=empty_cols).to_csv(output_file, sep="\t", index=False)
+        return
 
     print("g:Profiler results preview:")
     print(results.head(10))
 
 
-    # Build gene-to-miRNA mapping
+    """ # Build gene-to-miRNA mapping
     gene_to_mirnas = gene_mirna_map.groupby(gene_column)[mirna_column].apply(set).to_dict()
 
     def get_mirna_set(genes):
@@ -79,9 +86,14 @@ def main():
     # Select columns if they exist
     outcols = ["GO_term", "Genes", "miRNAs", "miRNA_count", "native", "description", "p_value", "term_size", "intersection_size"]
     outcols = [col for col in outcols if col in results.columns]
+ """
+    # Select columns if they exist
+    outcols = ["GO_term", "Genes", "native", "description", "p_value", "term_size", "intersection_size"]
+    outcols = [col for col in outcols if col in results.columns]
 
-    results[outcols].to_csv(output_file, index=False)
-    print(f"GO enrichment with miRNAs saved to: {output_file}")
+    # save output
+    results[outcols].to_csv(output_file, sep="\t", index=False)
+    print(f"GO enrichment saved to: {output_file}")
 
 
 if __name__ == "__main__":
