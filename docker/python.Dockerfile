@@ -5,6 +5,7 @@ WORKDIR /app
 
 # System deps needed by Python packages
 RUN apt-get update && apt-get install -y --no-install-recommends \
+    bash \
     build-essential \
     git \
     curl \
@@ -26,5 +27,4 @@ WORKDIR /app
 ENV PYTHONUNBUFFERED=1
 ENV PATH="/app/scripts:${PATH}"
 
-ENTRYPOINT ["/bin/bash", "-c"]
 

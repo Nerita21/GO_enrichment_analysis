@@ -5,6 +5,7 @@ WORKDIR /app
 
 # System deps for R packages
 RUN apt-get update && apt-get install -y --no-install-recommends \
+    bash \
     libcurl4-openssl-dev \
     libxml2-dev \
     libssl-dev \
@@ -24,4 +25,4 @@ WORKDIR /app
 
 ENV R_LIBS_USER=/usr/local/lib/R/site-library
 
-ENTRYPOINT ["/bin/bash", "-c"]
+ENTRYPOINT ["/bin/bash"]

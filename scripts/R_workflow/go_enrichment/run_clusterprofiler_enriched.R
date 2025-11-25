@@ -26,7 +26,7 @@ analyse_miRNA_targets <- function(input_file) {
     # LOADING DATA
 
     # Load datasets
-    mirna_target_gene_set <- read.delim(input_file, header = TRUE, stringsAsFactors = FALSE)
+    given_mirna_target_gene_set <- read.delim(input_file, header = TRUE, stringsAsFactors = FALSE)
 
     #############################################################
     # GENELIST
@@ -73,3 +73,4 @@ write.table(as.data.frame(enrich_files$GO_result), file = out_GO, sep = "\t", ro
 write.table(as.data.frame(enrich_files$GO_result_simplyfied_Lin), file = out_GO_lin, sep = "\t", row.names=FALSE, quote=FALSE)
 write.table(as.data.frame(enrich_files$GO_result_simplyfied_Wang), file = out_GO_wang, sep = "\t", row.names=FALSE, quote=FALSE)
 write.table(as.data.frame(enrich_files$Kegg_result), file = out_KEGG, sep = "\t", row.names=FALSE, quote=FALSE)
+
