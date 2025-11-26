@@ -3,7 +3,7 @@
 process run_clusterprofiler {
     tag "clusterProfiler enrichment"
     label "R"
-    publishDir "${output_dir_r}", mode: 'copy'
+    publishDir params.output_dir_r, mode: 'copy'
 
     input:
         path(input_tsv_abs)

@@ -3,25 +3,26 @@
 // Python workflow step 1
 // Nextflow process to run g:Profiler enrichment analysis 
 process run_gprofiler {
-    tag "Python_gprofiler"
+    tag "pythonGoProfiler"
     label "python"
-    container 'go-enrichment-python:latest'
 
-    publishDir "output_dir_py", mode: 'copy'
+    publishDir params.output_dir_py, mode: 'copy'
 
     input:
-        path input_tsv
+        path(input_tsv_abs)
 
     output:
-        path("*_gprofiler_enriched.tsv"), emit: enrichedPython
+         tuple val(input_tsv_abs.baseName), path("gprofiler_enriched.tsv"), emit: pyenriched
 
     script:
     """
     python3 ${launchDir}/scripts/Python_workflow/go_enrichment/run_gprofiler_enriched.py \
-        ${input_tsv} \
-         ${input_tsv.baseName}_gprofiler_enriched.tsv
+        ${input_tsv_abs} \
+        "gprofiler_enriched.tsv"
+
     """
 }
 
 // Input: tsv with miRNA targets (header is "GeneSymbol" in example)
 // Output: tsv with enriched GO terms (flat list)
+
