@@ -8,8 +8,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     bash \
     build-essential \
     git \
-    curl \
-    libxml2-dev \
+    libxml2-dev \  
     libffi-dev \
     libssl-dev \
     && rm -rf /var/lib/apt/lists/*
@@ -25,6 +24,6 @@ RUN mkdir -p /app/results/Python_based /app/results/comparison /app/data/process
 WORKDIR /app
 
 ENV PYTHONUNBUFFERED=1
-ENV PATH="/app/scripts:${PATH}"
 
+ENV PATH="/app/scripts:${PATH}"
 
