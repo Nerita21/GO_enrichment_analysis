@@ -10,15 +10,13 @@ from pathlib import Path
 # Output: TSV file with enriched GO terms, associated genes, miRNAs, and miRNA counts
 
 def main():
-    if len(sys.argv) < 3:
+    if len(sys.argv) < 2:
         print("Usage: python run_gprofiler_enriched.py <input_file> <output_file> [organism]")
         sys.exit(1)
 
-    input_file = Path(sys.argv[1])
-    output_file = Path(sys.argv[2])
+    input_file = sys.argv[1]
+    output_file = sys.argv[2]
     organism = sys.argv[3] if len(sys.argv) > 3 else "hsapiens"
-
-    output_file.parent.mkdir(parents=True, exist_ok=True)
 
     gene_column = "GeneSymbol"
     # mirna_column = "miRNA"
